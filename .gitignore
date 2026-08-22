@@ -1,0 +1,22 @@
+# Node.js
+node_modules/
+
+# Environment variables / secrets
+.env
+.env.*
+
+# Logs
+*.log
+logs/
+
+# VS Code local settings
+.vscode/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.swp
+*~
