@@ -19,13 +19,27 @@
 
 ## 2. 現在のフェーズ
 
-**アプリケーション実装開始準備**
+**アプリケーション実装開始**
 
 開発PC → GitHub → VPS という基本的な開発・デプロイ経路の構築が完了しました。
 
-現在は開発環境・サーバー環境の初期構築フェーズから、アプリケーション本体の実装フェーズへ移行する段階です。
+クライアントおよびサーバーの最小構成を作成し、
+HTML / Vanilla JavaScriptによるクライアントと、
+Node.js標準機能によるWeb APIとの基本通信まで実装しました。
 
-次はクライアントおよびサーバーの最小構成を作成し、ブラウザからNode.jsのWeb APIを呼び出せるところまでを構築します。
+ローカル開発環境では、
+
+- クライアントからWeb APIを呼び出す
+- Web APIからJSONを返す
+- クライアントからJSONをPOSTする
+- Node.jsでリクエストを受け取る
+- 処理結果をJSONで返す
+- 受け取った結果をブラウザへ表示する
+
+という基本的な往復通信を確認済みです。
+
+次はGitHubへPushしたアプリケーションをVPSへ反映し、
+VPS上でNode.jsアプリケーションを起動して動作を確認します。
 
 ---
 
@@ -156,6 +170,12 @@ Ubuntu開発環境へClone済み。
 
 GitHubへの初回PushおよびGitHub上での反映確認まで完了しています。
 
+アプリケーションの最小構成および基本通信処理についてもCommit / Push済みです。
+
+Commit：
+
+`クライアント・サーバー間の基本通信を実装`
+
 ### 開発環境
 
 Ubuntuを開発環境として使用。
@@ -164,47 +184,39 @@ Visual Studio Codeでリポジトリを開き、開発できる状態まで準�
 
 Visual Studio CodeからGitのCommit / Pushを行えることを確認済み。
 
-### KAGOYA VPS
+### クライアント
 
-VPS契約済み。
-
-OS：
-
-Debian
+`src/client` にクライアント側の最小構成を作成しました。
 
 実施済み：
 
-- `apt update`
-- `apt upgrade`
+- `index.html` を作成
+- Vanilla JavaScriptを外部ファイル `js/app.js` として分離
+- JavaScriptからDOMを取得し、画面を書き換えられることを確認
+- Visual Studio CodeのLive Serverを利用してHTTP経由で表示
+- Node.js Web APIを `fetch` で呼び出す処理を実装
+- Web APIから取得したJSONを画面へ表示
+- 入力値をJSONとしてWeb APIへPOST
+- Web APIから返された結果を画面へ表示
 
-Node.js確認済み：
+### Node.js Web API
 
-- Node.js v24.18.0
-- npm 11.16.0
+`src/server/server.js` にNode.js標準の `http` モジュールを利用した最小Web APIを実装しました。
 
-Gitが未導入であったため、VPSへGitをインストール済み。
+外部Webフレームワークは現時点では導入していません。
 
-正式なアプリケーション配置場所：
+実装済みAPI：
 
-`/srv/xo-code-busters`
+#### GET `/api/health`
 
-GitHubの `xo-code-busters` リポジトリを上記ディレクトリへClone済み。
+サーバーの動作確認用API。
 
-これにより、
+レスポンス例：
 
-Ubuntu開発PC  
-↓  
-Git Commit / Push  
-↓  
-GitHub  
-↓  
-VPSでGit Pull  
-↓  
-実行
-
-という基本的な開発・デプロイ経路が構築できました。
-
-### Web公開・セキュリティ方針
+```json
+{
+  "status": "ok"
+}### Web公開・セキュリティ方針
 
 Web公開時に `/srv/xo-code-busters` 全体を公開対象にはしない方針としました。
 
@@ -319,3 +331,15 @@ PostgreSQL、nginx、認証・認可、PixiJS、追加ライブラリ等につ�
 実際に構築したシステムについて、技術構成、設計判断、特徴、得られた知見等を説明する資料。
 
 システムがある程度完成してから作成します。
+
+### 一点だけ補足
+
+今回、元のロードマップにあった「技術選定方針」はそのまま残しています。ここは今回の実装方法とも綺麗に一致しています。もともと「Vanilla JavaScriptとNode.js標準機能でまず実装し、課題を確認してから追加技術を判断する」としていました。:contentReference[oaicite:1]{index=1}
+
+実際今日、
+
+**素のNode.js → CORSに遭遇 → Originを限定して許可 → OPTIONSを処理 → GET/POST通信成立**
+
+と、まさにその方針どおりに一個問題を踏めました。
+
+なので、これは単なる進捗ではなく、**ロードマップに書いていた開発方針が実際の開発として動き始めた最初の日**と見てよいと思います。
