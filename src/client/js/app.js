@@ -1,13 +1,9 @@
-
 const message = document.getElementById("message");
 const nameInput = document.getElementById("name");
 const sendButton = document.getElementById("send");
 const result = document.getElementById("result");
 
-//const API_BASE_URL = "http://localhost:3000";
-const API_BASE_URL = "http://133.18.143.23:3000";
-
-fetch(`${API_BASE_URL}/api/health`)
+fetch("/api/health")
     .then(response => response.json())
     .then(data => {
         message.textContent = `Server status: ${data.status}`;
@@ -18,7 +14,7 @@ fetch(`${API_BASE_URL}/api/health`)
     });
 
 sendButton.addEventListener("click", () => {
-    fetch(`${API_BASE_URL}/api/hello`, {
+    fetch("/api/hello", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
