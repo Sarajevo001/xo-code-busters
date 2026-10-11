@@ -1,65 +1,25 @@
-const http = require("http");
+const express = require("express");
+const path = require("node:path");
 
-const server = http.createServer((req, res) => {
-    res.setHeader(
-        "Access-Control-Allow-Origin",
-        "http://127.0.0.1:5500"
-    );
+const app = express();
+const port = Number(process.env.PORT || 3000);
 
-    res.setHeader(
-        "Access-Control-Allow-Headers",
-        "Content-Type"
-    );
+app.use(express.json());
 
-    if (req.method === "OPTIONS") {
-        res.writeHead(204);
-        res.end();
-        return;
-    }
-
-    if (req.method === "GET" && req.url === "/api/health") {
-        res.writeHead(200, {
-            "Content-Type": "application/json; charset=utf-8"
-        });
-
-        res.end(JSON.stringify({
-            status: "ok"
-        }));
-
-        return;
-    }
-
-    if (req.method === "POST" && req.url === "/api/hello") {
-        let body = "";
-
-        req.on("data", chunk => {
-            body += chunk;
-        });
-
-        req.on("end", () => {
-            const data = JSON.parse(body);
-
-            res.writeHead(200, {
-                "Content-Type": "application/json; charset=utf-8"
-            });
-
-            res.end(JSON.stringify({
-                message: `Hello, ${data.name}`
-            }));
-        });
-
-        return;
-    }
-
-    res.writeHead(404, {
-        "Content-Type": "application/json; charset=utf-8"
-    });
-
-    res.end(JSON.stringify({
-        error: "Not Found"
-    }));
+app.get("/api/health", (req, res) => {
+    res.json({ status: "ok" });
 });
 
-server.listen(3000, () => {
-    console.log("Server started: http://localhost:3000");
+app.post("/api/hello", (req, res) => {
+    res.json({ message: `Hello, ${req.body.name}` });
+});
+
+app.use(express.static(path.join(__dirname, "../client")));
+
+app.use((req, res) => {
+    res.status(404).json({ error: "Not Found" });
+});
+
+app.listen(port, "127.0.0.1", () => {
+    console.log(`Server started: http://127.0.0.1:${port}`);
 });
