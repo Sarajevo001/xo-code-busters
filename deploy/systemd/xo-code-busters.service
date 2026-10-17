@@ -1,0 +1,17 @@
+[Unit]
+Description=XO-Code Busters Express Server
+After=network.target
+
+[Service]
+Type=simple
+User=xo-code-busters
+Group=xo-code-busters
+WorkingDirectory=/srv/xo-code-busters/src/server
+ExecStart=/usr/bin/node /srv/xo-code-busters/src/server/server.js
+Restart=on-failure
+RestartSec=5
+Environment=NODE_ENV=production
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
