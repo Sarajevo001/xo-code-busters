@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>リアルタイムお絵かき</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.5/peerjs.min.js"></script>
+  <script src="main.js" defer></script>
+</head>
+
+<body>
+  <header>
+    <input id="peer-id" placeholder="あいことば" />
+    <button id="host">へやをつくる</button>
+    <button id="guest">へやにはいる</button>
+    <span id="status">まだつながっていません</span>
+  </header>
+
+  <div class="tools">
+    <button class="tool selected" data-tool="pen">🖊 ペン</button>
+    <button class="tool" data-tool="eraser">🧽 けしごむ</button>
+
+    <button class="color selected" data-color="#333333"></button>
+    <button class="color" data-color="#e5484d"></button>
+    <button class="color" data-color="#f5a524"></button>
+    <button class="color" data-color="#17c964"></button>
+    <button class="color" data-color="#006fee"></button>
+    <button class="stamp" data-stamp="🐱">🐱</button>
+    <button class="stamp" data-stamp="🌸">🌸</button>
+    <button class="stamp" data-stamp="⭐">⭐</button>
+
+    <button id="clear">ぜんぶ消す</button>
+  </div>
+
+  <div class="stage">
+    <canvas id="canvas" width="800" height="600"></canvas>
+  </div>
+</body>
+
+</html>

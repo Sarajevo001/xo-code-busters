@@ -14,7 +14,13 @@ app.post("/api/hello", (req, res) => {
     res.json({ message: `Hello, ${req.body.name}` });
 });
 
-app.use(express.static(path.join(__dirname, "../client")));
+app.use("/apps", express.static(
+    path.join(__dirname, "../apps")
+));
+
+app.use(express.static(
+    path.join(__dirname, "../client")
+));
 
 app.use((req, res) => {
     res.status(404).json({ error: "Not Found" });

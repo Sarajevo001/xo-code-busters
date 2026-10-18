@@ -1,0 +1,26 @@
+{
+  "name": "xo-code-busters",
+  "version": "1.0.0",
+  "description": "「設計判断を持ち寄る開発研究会 ～XO-Code Busters 奮闘記～」で開発するWebアプリケーションのリポジトリです。",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sarajevo001/xo-code-busters.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sarajevo001/xo-code-busters/issues"
+  },
+  "homepage": "https://github.com/Sarajevo001/xo-code-busters#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
