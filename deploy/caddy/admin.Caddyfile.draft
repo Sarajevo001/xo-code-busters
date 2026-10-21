@@ -1,0 +1,7 @@
+# DRAFT ONLY: do not merge into active Caddyfile or publish the subdomain.
+# Future hostname after server-side administrator authentication and authorization:
+# admin.sarajevo.jp {
+#   reverse_proxy 127.0.0.1:3001
+# }
+#
+# Until then, no admin host should be configured in the live reverse proxy.
