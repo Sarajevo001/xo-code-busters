@@ -7,15 +7,19 @@
   ];
   const users = initial.map(u => ({...u}));
   const screen = document.querySelector("#screen");
-  let view="list", selected="U0001", query="", notice="";
+  let view="login", selected="U0001", query="", notice="", loggedIn=false;
   const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const user = () => users.find(u => u.id === selected);
   const badge = u => '<span class="badge '+(u.active?'':'off')+'">'+(u.active?'有効':'利用停止')+'</span>';
   const button = (label, target, css="") => '<button type="button" data-view="'+target+'" class="'+css+'">'+label+'</button>';
   function render() {
+    document.querySelector("nav").hidden = !loggedIn;
+    if(!loggedIn) view="login";
     document.querySelectorAll("nav [data-view]").forEach(b => b.setAttribute("aria-current", b.dataset.view===view?"page":"false"));
     let html="";
-    if(view==="list") {
+    if(view==="login") {
+      html='<h1>管理者ログイン（モック）</h1><p class="hint">任意の文字を入力して画面遷移を確認できます。認証は行いません。</p><form id="mock-login"><label for="admin-id">管理者ID</label><input id="admin-id" required autocomplete="off"><label for="admin-password">パスワード</label><input id="admin-password" type="password" required autocomplete="off"><div class="actions"><button class="primary" type="submit">ログイン（仮）</button></div></form>';
+    } else if(view==="list") {
       const found=users.filter(u => (u.id+" "+u.name+" "+u.email).toLowerCase().includes(query.toLowerCase()));
       html='<div class="toolbar"><h1>一般ユーザー一覧</h1>'+button("＋ 新規登録","new","primary")+'</div><label for="search">検索（ID・表示名・メールアドレス）</label><input id="search" type="search" value="'+escapeHtml(query)+'" placeholder="検索キーワード"><p class="hint">'+found.length+'件</p>'+found.map(u=>'<button class="user" data-user="'+escapeHtml(u.id)+'">'+badge(u)+'<strong>'+escapeHtml(u.name)+'（'+escapeHtml(u.id)+'）</strong><small>'+escapeHtml(u.email)+'</small></button>').join("")+(found.length?'':'<p>該当するユーザーはありません。</p>');
     } else if(view==="detail") {
@@ -34,6 +38,7 @@
       const input=document.querySelector("#search");
       input.focus();input.setSelectionRange(cursor,cursor);
     });
+    document.querySelector("#mock-login")?.addEventListener("submit", e => {e.preventDefault();loggedIn=true;view="list";notice="モックログインしました。実際の認証は行っていません。";render();});
     document.querySelector("#account-form")?.addEventListener("submit", save);
     document.querySelector("#toggle")?.addEventListener("click", () => {
       user().active=!user().active;
@@ -58,6 +63,7 @@
   document.addEventListener("click", e => {
     const selectedButton=e.target.closest("[data-user]");
     if(selectedButton) {selected=selectedButton.dataset.user;view="detail";notice="";render();return;}
+    if(e.target.closest("#mock-logout")) {loggedIn=false;view="login";notice="";render();return;}
     const nav=e.target.closest("[data-view]");
     if(nav) {view=nav.dataset.view;notice="";render();}
   });
