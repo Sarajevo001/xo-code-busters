@@ -1,0 +1,10 @@
+{
+  "name": "@xo-code-busters/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Server-side shared library for user and admin services",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js"
+  }
+}
