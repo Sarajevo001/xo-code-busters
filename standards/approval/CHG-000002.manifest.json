@@ -1,19 +1,19 @@
 {
   "schema": "xo-standards-approval-manifest-v1",
-  "change_id": "CHG-000002",
   "repository": "Sarajevo001/xo-code-busters",
   "target_branch": "main",
   "source_branch": "draft/CHG-000002-issue-management",
   "encoding": "UTF-8",
   "hash_algorithm": "SHA-256",
+  "change_id": "CHG-000002",
   "files": [
     {
       "path": "standards/management.md",
-      "sha256": "8936b83be8252c935587df03cddc9b5bced4be025229066041541e63b65b6946"
+      "sha256": "3df33599fa7152e7a4f87ede6f90dcb1fedc4256aa71dd663f5d8d7acc621681"
     },
     {
       "path": "standards/operations.md",
-      "sha256": "88fb48d7618ac9f29b1b6791828df3e44eab2528208ef8edcc2e7d7654b1c255"
+      "sha256": "b43d400b55bdc800b797c48b352cc85dc2c41089b516e0d228d4f32a6fda9502"
     },
     {
       "path": ".github/ISSUE_TEMPLATE/idea.md",
@@ -25,8 +25,8 @@
     },
     {
       "path": "standards/changes/2026.md",
-      "sha256": "16d08246e83ed7bd7ed708432f003db1deb787736eecd2ae0f60d725ef781be0"
+      "sha256": "aa0c5306a581031472a1405032c38ac80dcd6e46baea70572401f2b0dc1501d8"
     }
   ],
-  "notes": "Apply CHG-000001 and CHG-000002 entries only. CHG-000003 is not yet approved."
+  "notes": "Apply CHG-000001 and CHG-000002 entries only; CHG-000003 is excluded."
 }
