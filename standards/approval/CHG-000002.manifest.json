@@ -6,7 +6,27 @@
   "source_branch": "draft/CHG-000002-issue-management",
   "encoding": "UTF-8",
   "hash_algorithm": "SHA-256",
-  "files": [],
-  "notes": "Previous hashes are obsolete after review fixes. This document is not an approval manifest and must not be approved or used for main. Regenerate after final content freeze.",
-  "status": "INVALIDATED_BY_PRE_APPROVAL_REVIEW"
+  "files": [
+    {
+      "path": "standards/management.md",
+      "sha256": "8936b83be8252c935587df03cddc9b5bced4be025229066041541e63b65b6946"
+    },
+    {
+      "path": "standards/operations.md",
+      "sha256": "88fb48d7618ac9f29b1b6791828df3e44eab2528208ef8edcc2e7d7654b1c255"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/idea.md",
+      "sha256": "70c8f73327c51c702bd34635f8762e86eccd96e860744b4e36137938af9ec1cb"
+    },
+    {
+      "path": ".github/ISSUE_TEMPLATE/problem.md",
+      "sha256": "5cc7084982b38f97302fab63ccec130704b8e47f84d62518efed27fcd55558e3"
+    },
+    {
+      "path": "standards/changes/2026.md",
+      "sha256": "16d08246e83ed7bd7ed708432f003db1deb787736eecd2ae0f60d725ef781be0"
+    }
+  ],
+  "notes": "Apply CHG-000001 and CHG-000002 entries only. CHG-000003 is not yet approved."
 }
