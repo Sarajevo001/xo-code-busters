@@ -1,11 +1,11 @@
 {
   "schema": "xo-standards-approval-manifest-v1",
-  "change_id": "CHG-000003",
   "repository": "Sarajevo001/xo-code-busters",
   "target_branch": "main",
   "source_branch": "draft/CHG-000002-issue-management",
   "encoding": "UTF-8",
   "hash_algorithm": "SHA-256",
+  "change_id": "CHG-000003",
   "files": [
     {
       "path": "standards/common.md",
@@ -13,8 +13,8 @@
     },
     {
       "path": "standards/changes/2026.md",
-      "sha256": "e321d00c43a75b4d319e65ab88742d89ab2740166542e614d5da75d2cabc4dc5"
+      "sha256": "cbc5a0d039683dc1bb1ebd50146a9fa899895cfa53f6c9f1b613f9cda353ec1d"
     }
   ],
-  "notes": "Apply only after CHG-000002. Changes log contains CHG-000001 through CHG-000003."
+  "notes": "Apply only after CHG-000002; change log contains CHG-000001 through CHG-000003."
 }
