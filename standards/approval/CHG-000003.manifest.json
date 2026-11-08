@@ -6,7 +6,15 @@
   "source_branch": "draft/CHG-000002-issue-management",
   "encoding": "UTF-8",
   "hash_algorithm": "SHA-256",
-  "files": [],
-  "notes": "Previous hashes are obsolete after review fixes. This document is not an approval manifest and must not be approved or used for main. Regenerate after final content freeze.",
-  "status": "INVALIDATED_BY_PRE_APPROVAL_REVIEW"
+  "files": [
+    {
+      "path": "standards/common.md",
+      "sha256": "91408d035ff9f3b7c11a7ebdd8e997ef72f8959e2464ae2d5e9407803ba9e039"
+    },
+    {
+      "path": "standards/changes/2026.md",
+      "sha256": "e321d00c43a75b4d319e65ab88742d89ab2740166542e614d5da75d2cabc4dc5"
+    }
+  ],
+  "notes": "Apply only after CHG-000002. Changes log contains CHG-000001 through CHG-000003."
 }
