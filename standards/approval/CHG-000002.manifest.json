@@ -6,27 +6,7 @@
   "source_branch": "draft/CHG-000002-issue-management",
   "encoding": "UTF-8",
   "hash_algorithm": "SHA-256",
-  "files": [
-    {
-      "path": "standards/management.md",
-      "sha256": "74bd6b19fe4ac50e662a0021d006f644f385a24307730ab13dcb56c0665b2361"
-    },
-    {
-      "path": "standards/operations.md",
-      "sha256": "6ed2ec6b34ecf50943e06fe290a26f84d8a73d6436b179f5a506bfea426ee517"
-    },
-    {
-      "path": ".github/ISSUE_TEMPLATE/idea.md",
-      "sha256": "70c8f73327c51c702bd34635f8762e86eccd96e860744b4e36137938af9ec1cb"
-    },
-    {
-      "path": ".github/ISSUE_TEMPLATE/problem.md",
-      "sha256": "5cc7084982b38f97302fab63ccec130704b8e47f84d62518efed27fcd55558e3"
-    },
-    {
-      "path": "standards/changes/2026.md",
-      "sha256": "9496adf9a1fc945b20c0ca87154d6ec09e3ea5cbe43706393c0d00952d2f7482"
-    }
-  ],
-  "notes": "Changes log is CHG-000001 plus CHG-000002 only; do not copy draft branch full log."
+  "files": [],
+  "notes": "Previous hashes are obsolete after review fixes. This document is not an approval manifest and must not be approved or used for main. Regenerate after final content freeze.",
+  "status": "INVALIDATED_BY_PRE_APPROVAL_REVIEW"
 }
