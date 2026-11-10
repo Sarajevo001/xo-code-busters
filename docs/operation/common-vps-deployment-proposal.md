@@ -45,3 +45,13 @@
 
 ## 6. 既存手順との関係
 `docs/operation/deployment-guide.md` のSSH＋`git pull --ff-only` を基本方式とする。既存の手動手順は引き続き使用可能とし、自動化導入後も復旧・切り分け手段として保持する。
+
+## 7. 初回対象プロジェクトの確定設定（2026-11-10）
+- リポジトリ：`Sarajevo001/oop-rpg-workshop`
+- 対象ブランチ：`main`
+- VPS上の既存Git作業ディレクトリ：`/var/www/demo/oop-rpg-workshop`（利用者申告）
+- 既存公開URL：`https://demo.sarajevo.jp/oop-rpg-workshop/`
+- 更新方式：SSH接続後に当該ディレクトリで `git pull --ff-only`
+- 初回の対象変更：プレゼン資料を含む静的HTML
+
+このディレクトリに実際のGit作業ツリーがあり、`origin` が対象リポジトリで、公開設定が同ディレクトリを参照していることは、まだVPS上で検証していない。読み取り専用の事前確認を実施するまでデプロイを有効化しない。
