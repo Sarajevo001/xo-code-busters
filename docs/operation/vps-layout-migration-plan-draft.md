@@ -30,7 +30,7 @@ RPG教材の旧公開用コピーは `/var/www/demo/oop-rpg-workshop`。これ�
 1. `src/client/` と `src/apps/` の公開コンテンツを `src/public/` に整理する。現行 `src/server/server.js` の `express.static` は `../client` と `../apps` を参照しているため、配信URLを維持するルーティング変更が必要。
 2. `src/admin-client/` は管理者認証・DB・API未実装のプロトタイプであり、現時点では公開対象外とする。`src/admin-server/` も管理用の別プロセス（既定127.0.0.1:3001）で、ヘルスチェック以外は503を返す設計。公開サイトの `src/public/` に管理画面を混入させず、将来の認証・認可実装と公開承認まで隔離する。`src/shared/` は用途と参照を確認してから配置を決める。
 3. `deploy/systemd/xo-code-busters.service` の `WorkingDirectory` と `ExecStart` を新パスへ変更する。VPS実際のunit・drop-inと差分照合。
-4. Caddyの `sarajevo.jp` → `127.0.0.1:3000` リバースプロキシは、必要性がない限り維持。既存公開URL `/`、`/game/`、`/apps/`、`/api/health` 等は変更前に実際の有効ルートを列挙する。
+4. Caddyの `sarajevo.jp` → `127.0.0.1:3000` リバースプロキシは、必要性がない限り維持。既存公開URL `/`、`/apps/bird-shoot/`、`/apps/drawing/`、`/api/health` 等は変更前に実際の有効ルートを列挙する。`/game/` は廃止済みの旧URLであり、移行後の互換性維持・リダイレクト対象としない。
 5. Git更新ユーザーは作業ツリーを書き込める必要がある一方、Caddy/ExpressはGit作業ツリーを書き込めないよう所有者・グループ・ACL・サービスの制限を設計する。Nodeの依存ファイル更新手順を確認する。
 
 ## 4. RPG教材 個別変更案
@@ -70,3 +70,13 @@ RPG教材の旧公開用コピーは `/var/www/demo/oop-rpg-workshop`。これ�
 - `xo-code-busters/src/admin-server/README.md` および `server.js`：別プロセス、既定ポート3001、管理API非公開。ヘルスチェック以外503。
 - `oop-rpg-workshop/index.html`：講義スライド6件への相対リンクを確認。
 - 上記はリポジトリ上の設計・コードに関する確認であり、稼働VPSの現況確認ではない。
+
+## 9. 2026-11-11 VPS読み取り専用調査の実測結果
+- ユーザーによるVPS上での実行。Caddyと `xo-code-busters` は共に active / enabled。
+- 現行Git作業ツリーはXO `/srv/xo-code-busters`（main、HEAD `b6521dbeee0e5627628b1c8f96150b5412904b3c`）、RPG `/home/debian/oop-rpg-workshop`（main、HEAD `0c5182d0160636d8872ceaf953929f79576d42a5`）。両者とも追跡対象の変更なし、未追跡ファイルなし。
+- RPG公開コピー `/var/www/demo/oop-rpg-workshop` が存在。Caddy設定には `reverse_proxy 127.0.0.1:3000` と `root * /var/www/demo` の参照あり。全設定内容と公開コピーの差分は未確認。
+- 移行先 `/srv/GitHub/Sarajevo001/{xo-code-busters,oop-rpg-workshop}` は未作成。永続データ領域 `/var/lib/projects/Sarajevo001/...` も未作成。
+- 公開HTTP: `https://sarajevo.jp/` 200、`https://sarajevo.jp/api/health` 200、`https://demo.sarajevo.jp/oop-rpg-workshop/` 200。ローカルExpress: `/apps/bird-shoot/` 200、`/apps/drawing/` 200、`/game/` 404。公開 `/game/` も404。
+- **ユーザー確定判断**：`/game/` は旧設定であり不要。復旧やリダイレクトは行わず、現行アプリのURLを移行前後の比較対象とする。
+- HTTP 200は取得成功を示すだけで、画面操作・リンク先・公開権限の正常性を保証しない。VPS切替前にCaddy全設定、RPGの公開コピーとGitの差分、ファイル参照、バックアップ・復旧手順を確認する。
+- この調査でVPSの設定変更・サービス再起動・ディレクトリ移動は行っていない。
