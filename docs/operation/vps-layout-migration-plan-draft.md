@@ -28,15 +28,15 @@ RPG教材の旧公開用コピーは `/var/www/demo/oop-rpg-workshop`。これ�
 
 ## 3. XO-Code Busters 個別変更案
 1. `src/client/` と `src/apps/` の公開コンテンツを `src/public/` に整理する。現行 `src/server/server.js` の `express.static` は `../client` と `../apps` を参照しているため、配信URLを維持するルーティング変更が必要。
-2. `src/admin-client/`、`src/admin-server/`、`src/shared/` も現存する。公開・サーバー実装・共通コードの責務を調査し、機械的に移動しない。管理画面の認証・公開範囲を先に確認。
+2. `src/admin-client/` は管理者認証・DB・API未実装のプロトタイプであり、現時点では公開対象外とする。`src/admin-server/` も管理用の別プロセス（既定127.0.0.1:3001）で、ヘルスチェック以外は503を返す設計。公開サイトの `src/public/` に管理画面を混入させず、将来の認証・認可実装と公開承認まで隔離する。`src/shared/` は用途と参照を確認してから配置を決める。
 3. `deploy/systemd/xo-code-busters.service` の `WorkingDirectory` と `ExecStart` を新パスへ変更する。VPS実際のunit・drop-inと差分照合。
 4. Caddyの `sarajevo.jp` → `127.0.0.1:3000` リバースプロキシは、必要性がない限り維持。既存公開URL `/`、`/game/`、`/apps/`、`/api/health` 等は変更前に実際の有効ルートを列挙する。
 5. Git更新ユーザーは作業ツリーを書き込める必要がある一方、Caddy/ExpressはGit作業ツリーを書き込めないよう所有者・グループ・ACL・サービスの制限を設計する。Nodeの依存ファイル更新手順を確認する。
 
 ## 4. RPG教材 個別変更案
-1. `index.html`、`examples/`、`presentations/` は現在リポジトリ直下に存在する。静的公開対象の確定後、`src/public/` へ移動する。 `archive/`、`docs/`、`ci/`、`tests/`、`.github/` 等は公開しない。
+1. `index.html`、`examples/`、`presentations/` は現在リポジトリ直下に存在する。`index.html` には `presentations/chapter0/` から `chapter4/` および `summary/` へのリンクが実装されているため、これらを公開対象に含めて `src/public/` へ移動する。 `archive/`、`docs/`、`ci/`、`tests/`、`.github/` 等は公開しない。
 2. `https://demo.sarajevo.jp/oop-rpg-workshop/` のURLを維持するよう、実際のCaddyのhandle/path処理を確認してから公開ルートを変更する。既存 `/var/www/demo/oop-rpg-workshop` の配信コピーは、新方式の確認完了まで削除しない。
-3. `presentations/` はGitHubに存在するが、現行公開コピーにないとの既存記録がある。公開するかどうかを明示してから移行する。
+3. `presentations/` は現行 `index.html` から参照される教材であり、公開対象とする。旧公開コピーに存在しないとの既存記録があるため、移行前後のリンク解決を検証し、現時点の実際の公開状況はVPSで確認する。
 4. `verify_handoffs.py`、CI、リンク・パス参照を更新する。テストはルート `tests/` を維持する。
 
 ## 5. 切替の共通順序（案）
@@ -57,10 +57,16 @@ RPG教材の旧公開用コピーは `/var/www/demo/oop-rpg-workshop`。これ�
 
 ## 7. 未確定事項
 - VPS実機のCaddy全体設定・RPG教材の配信方法、現在の実行時データの有無
-- XO-Code Bustersの管理画面・共通コードの責務と公開範囲
-- RPG教材 `presentations/` の公開可否
+- XO-Code Bustersの `src/shared/` の参照関係、管理画面の将来配置（現時点では公開しない）
+- RPG教材 `presentations/` の現行VPS配信状況（公開対象に含める方針はコードから確認済み）
 - デプロイ主体とCaddy/ExpressのLinuxユーザー・ACLの具体値
 - 変更作業の日程・他作業との順序、復旧可能なバックアップの取得方法
 - GitHub Actionsによるデプロイ自動化の導入時期。今回の配置移行と同時実施を前提としない
 
 未確定事項を推測で埋めて本番切替を行わない。
+
+## 8. 追加調査の根拠（GitHub現行main）
+- `xo-code-busters/src/admin-client/README.md`：管理者画面はブラウザメモリ上の仮データのみ。管理者認証、DB、API通信、パスワード保存なし。公開環境で使わないと明記。
+- `xo-code-busters/src/admin-server/README.md` および `server.js`：別プロセス、既定ポート3001、管理API非公開。ヘルスチェック以外503。
+- `oop-rpg-workshop/index.html`：講義スライド6件への相対リンクを確認。
+- 上記はリポジトリ上の設計・コードに関する確認であり、稼働VPSの現況確認ではない。
