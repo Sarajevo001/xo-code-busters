@@ -88,3 +88,9 @@ RPG教材の旧公開用コピーは `/var/www/demo/oop-rpg-workshop`。これ�
 - **保留事項**：過去のGitHub調査では `presentations/` へのリンクを確認していたため、GitHub `main` とVPSのHEADの差分、VPSの `index.html` のリンク、公開URLを追加照合する。現時点で `presentations/` を実機に存在するものとして扱わない。
 - `diff -qr` の比較結果は通常ファイルの差分確認であり、シンボリックリンク・HTTP配信可否・画面操作・非公開領域の検証は別途必要。
 - 本調査は読み取り専用であり、VPS側のファイル・設定は変更していない。
+
+## 11. 2026-11-11 VPSとGitHub mainのリビジョン相違
+- VPS RPGの `git rev-parse HEAD` は `0c5182d0160636d8872ceaf953929f79576d42a5`。`git ls-remote origin refs/heads/main` は `git@github.com: Permission denied (publickey)` で失敗。SSH認証問題はデプロイ前の別途対処事項であり、公開サイト障害とは同一視しない。
+- VPSの `index.html` は `examples/` のみ参照し、`presentations/` は存在しない。
+- GitHub連携による直接参照ではRPG `main` のHEADは `f00c2fdce12db17c224273b513483be7107342b4`、`presentations/` ディレクトリが存在。**VPSとGitHubのリビジョンが異なることが確定**。追加された時点と全変更内容は未調査。
+- GitHub最新版を本番へ自動反映せず、差分と公開URLを評価してからデプロイ対象を決める。
