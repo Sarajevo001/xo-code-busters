@@ -34,9 +34,9 @@ RPG教材の旧公開用コピーは `/var/www/demo/oop-rpg-workshop`。これ�
 5. Git更新ユーザーは作業ツリーを書き込める必要がある一方、Caddy/ExpressはGit作業ツリーを書き込めないよう所有者・グループ・ACL・サービスの制限を設計する。Nodeの依存ファイル更新手順を確認する。
 
 ## 4. RPG教材 個別変更案
-1. `index.html`、`examples/`、`presentations/` は現在リポジトリ直下に存在する。`index.html` には `presentations/chapter0/` から `chapter4/` および `summary/` へのリンクが実装されているため、これらを公開対象に含めて `src/public/` へ移動する。 `archive/`、`docs/`、`ci/`、`tests/`、`.github/` 等は公開しない。
+1. `index.html`、`examples/` はVPSの現行Git作業ツリーと公開コピーで存在確認済み。`presentations/` は2026-11-11のVPS実測ではGit追跡一覧にも公開コピー一覧にも現れなかったため、GitHub側の別リビジョンとの相違を確認するまで存在を前提にしない。`index.html` には `presentations/chapter0/` から `chapter4/` および `summary/` へのリンクが実装されているため、これらを公開対象に含めて `src/public/` へ移動する。 `archive/`、`docs/`、`ci/`、`tests/`、`.github/` 等は公開しない。
 2. `https://demo.sarajevo.jp/oop-rpg-workshop/` のURLを維持するよう、実際のCaddyのhandle/path処理を確認してから公開ルートを変更する。既存 `/var/www/demo/oop-rpg-workshop` の配信コピーは、新方式の確認完了まで削除しない。
-3. `presentations/` は現行 `index.html` から参照される教材であり、公開対象とする。旧公開コピーに存在しないとの既存記録があるため、移行前後のリンク解決を検証し、現時点の実際の公開状況はVPSで確認する。
+3. `presentations/` は以前確認したGitHub上の `index.html` にリンクが存在するが、2026-11-11のVPS実測ではディレクトリが確認されなかった。VPSのHEADとGitHub `main` の差分、実際の `index.html` のリンク、公開URLの応答を照合し、存在する場合のみ公開対象に追加する。
 4. `verify_handoffs.py`、CI、リンク・パス参照を更新する。テストはルート `tests/` を維持する。
 
 ## 5. 切替の共通順序（案）
@@ -80,3 +80,11 @@ RPG教材の旧公開用コピーは `/var/www/demo/oop-rpg-workshop`。これ�
 - **ユーザー確定判断**：`/game/` は旧設定であり不要。復旧やリダイレクトは行わず、現行アプリのURLを移行前後の比較対象とする。
 - HTTP 200は取得成功を示すだけで、画面操作・リンク先・公開権限の正常性を保証しない。VPS切替前にCaddy全設定、RPGの公開コピーとGitの差分、ファイル参照、バックアップ・復旧手順を確認する。
 - この調査でVPSの設定変更・サービス再起動・ディレクトリ移動は行っていない。
+
+## 10. 2026-11-11 RPG公開コピー・Caddy設定の実測
+- VPS `/etc/caddy/Caddyfile` は `sarajevo.jp { reverse_proxy 127.0.0.1:3000 }` と `demo.sarajevo.jp { root * /var/www/demo; file_server }` の2サイト。RPGの公開URL `/oop-rpg-workshop/` は `/var/www/demo/oop-rpg-workshop` に対応する。
+- VPSのGit作業ツリー `/home/debian/oop-rpg-workshop` は `git status --short` 出力なし。`git ls-files index.html examples presentations` では `index.html` と `examples/` のみ確認され、`presentations/` は出力されなかった。
+- 公開コピーの通常ファイル一覧は `index.html` と `examples/` 以下のみ。`diff -qr`（`.git`除外）はGit側にのみ `README.md`、`archive/`、`docs/` があると報告し、共通ファイルの内容差は報告しなかった。
+- **保留事項**：過去のGitHub調査では `presentations/` へのリンクを確認していたため、GitHub `main` とVPSのHEADの差分、VPSの `index.html` のリンク、公開URLを追加照合する。現時点で `presentations/` を実機に存在するものとして扱わない。
+- `diff -qr` の比較結果は通常ファイルの差分確認であり、シンボリックリンク・HTTP配信可否・画面操作・非公開領域の検証は別途必要。
+- 本調査は読み取り専用であり、VPS側のファイル・設定は変更していない。
