@@ -15,11 +15,11 @@ app.post("/api/hello", (req, res) => {
 });
 
 app.use("/apps", express.static(
-    path.join(__dirname, "../apps")
+    path.join(__dirname, "../public/apps")
 ));
 
 app.use(express.static(
-    path.join(__dirname, "../client")
+    path.join(__dirname, "../public")
 ));
 
 app.use((req, res) => {
