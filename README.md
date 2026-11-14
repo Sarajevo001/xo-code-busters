@@ -37,7 +37,7 @@
 - HTML
 - CSS
 - Vanilla JavaScript
-- Phaser（Bird Shootで使用中。PixiJSは将来候補）
+- Phaser（Bird Shootで使用中）
 
 ### サーバー
 
