@@ -29,8 +29,8 @@
 | Caddy | Debianパッケージ、v2.6.2（構築時確認） |
 | Express | v5系（`src/server/package.json` は `^5.1.0` を指定） |
 | GitHub | `https://github.com/Sarajevo001/xo-code-busters` |
-| VPS配置先 | `/srv/xo-code-busters` |
-| アプリ起動ファイル | `/srv/xo-code-busters/src/server/server.js` |
+| VPS配置先 | `/srv/GitHub/Sarajevo001/xo-code-busters` |
+| アプリ起動ファイル | `/srv/GitHub/Sarajevo001/xo-code-busters/src/server/server.js` |
 | アプリ待受 | `127.0.0.1:3000` |
 | systemdサービス | `xo-code-busters.service` |
 | アプリ実行ユーザー | `xo-code-busters`（ログインシェルなし） |
@@ -73,8 +73,8 @@ After=network.target
 Type=simple
 User=xo-code-busters
 Group=xo-code-busters
-WorkingDirectory=/srv/xo-code-busters/src/server
-ExecStart=/usr/bin/node /srv/xo-code-busters/src/server/server.js
+WorkingDirectory=/srv/GitHub/Sarajevo001/xo-code-busters/src/server
+ExecStart=/usr/bin/node /srv/GitHub/Sarajevo001/xo-code-busters/src/server/server.js
 Restart=on-failure
 RestartSec=5
 Environment=NODE_ENV=production
@@ -90,7 +90,7 @@ WantedBy=multi-user.target
 
 1. ムームードメインで` sarajevo.jp `のAレコードをVPSのグローバルIPに設定し、`dig sarajevo.jp A +short`で名前解決を確認した。
 2. VPSにNode.jsおよびCaddyを用意した。Caddyをsystemdで有効化した。
-3. GitHubのリポジトリを`/srv/xo-code-busters`へ配置した。
+3. GitHubのリポジトリを`/srv/GitHub/Sarajevo001/xo-code-busters`へ配置した。
 4. `deploy/caddy/Caddyfile`を`/etc/caddy/Caddyfile`へ配置し、Caddyをreloadした。
 5. CaddyがLet's Encryptの証明書を取得し、HTTPSが利用可能になった。
 6. Express専用のシステムユーザーを作成した。
@@ -107,16 +107,16 @@ id xo-code-busters
 **Caddy設定の登録（初回または変更時）**
 
 ```bash
-sudo caddy validate --config /srv/xo-code-busters/deploy/caddy/Caddyfile --adapter caddyfile
-sudo cp /srv/xo-code-busters/deploy/caddy/Caddyfile /etc/caddy/Caddyfile
+sudo caddy validate --config /srv/GitHub/Sarajevo001/xo-code-busters/deploy/caddy/Caddyfile --adapter caddyfile
+sudo cp /srv/GitHub/Sarajevo001/xo-code-busters/deploy/caddy/Caddyfile /etc/caddy/Caddyfile
 sudo systemctl reload caddy
 ```
 
 **Expressサービス登録（初回のみ）**
 
 ```bash
-sudo systemd-analyze verify /srv/xo-code-busters/deploy/systemd/xo-code-busters.service
-sudo cp /srv/xo-code-busters/deploy/systemd/xo-code-busters.service /etc/systemd/system/xo-code-busters.service
+sudo systemd-analyze verify /srv/GitHub/Sarajevo001/xo-code-busters/deploy/systemd/xo-code-busters.service
+sudo cp /srv/GitHub/Sarajevo001/xo-code-busters/deploy/systemd/xo-code-busters.service /etc/systemd/system/xo-code-busters.service
 sudo systemctl daemon-reload
 sudo systemctl enable --now xo-code-busters
 ```
@@ -142,7 +142,7 @@ git push origin main
 ### 4.2 Debian VPS
 
 ```bash
-cd /srv/xo-code-busters
+cd /srv/GitHub/Sarajevo001/xo-code-busters
 git status
 git pull --ff-only
 ```
@@ -152,14 +152,14 @@ git pull --ff-only
 **サーバー側コードや依存関係が変更された場合**は、必要に応じて依存関係を更新し、Expressを再起動する。
 
 ```bash
-cd /srv/xo-code-busters/src/server
+cd /srv/GitHub/Sarajevo001/xo-code-busters/src/server
 # package-lock.jsonが適切に管理されている場合：
 # npm ci --omit=dev
 sudo systemctl restart xo-code-busters
 systemctl status xo-code-busters --no-pager
 ```
 
-**注意**：構築時、`src/server/package-lock.json`はGit追跡状態が未確定だった。`npm ci`を標準手順として確定する前に、`package.json`と`package-lock.json`をGitでどう管理するか確認する。ロックファイルのない状態で`npm ci`を実行しない。
+**注意**：`src/server/package-lock.json`は現在Git追跡されています。依存関係更新時はロックファイルと実行環境を確認し、再現可能なインストール方法を選択します。
 
 HTML・クライアントJavaScriptなど静的ファイルのみの更新で、Expressが毎回ファイルを読み出す構成なら、通常はExpress再起動不要。ただしサーバーコードや起動時に読み込む設定を変更した場合は再起動する。
 
@@ -173,7 +173,7 @@ curl -i https://sarajevo.jp/api/health
 両方ともHTTP 200と`{"status":"ok"}`を期待する。ブラウザでは以下を確認する。
 
 - `https://sarajevo.jp/`：トップページと`Server status: ok`
-- `https://sarajevo.jp/game/`：タイトル画面、ゲーム開始、ゲーム進行
+- `https://sarajevo.jp/apps/bird-shoot/`：タイトル画面、ゲーム開始、ゲーム進行
 
 APIのPOSTなど、更新内容に応じた個別機能の動作確認を追加する。
 
@@ -182,7 +182,7 @@ APIのPOSTなど、更新内容に応じた個別機能の動作確認を追加�
 ### Caddyfile変更時
 
 ```bash
-cd /srv/xo-code-busters
+cd /srv/GitHub/Sarajevo001/xo-code-busters
 git pull --ff-only
 sudo caddy validate --config deploy/caddy/Caddyfile --adapter caddyfile
 sudo cp deploy/caddy/Caddyfile /etc/caddy/Caddyfile
@@ -193,7 +193,7 @@ systemctl status caddy --no-pager
 ### systemdサービス定義変更時
 
 ```bash
-cd /srv/xo-code-busters
+cd /srv/GitHub/Sarajevo001/xo-code-busters
 git pull --ff-only
 sudo systemd-analyze verify deploy/systemd/xo-code-busters.service
 sudo cp deploy/systemd/xo-code-busters.service /etc/systemd/system/xo-code-busters.service
@@ -232,7 +232,7 @@ curl -i https://sarajevo.jp/api/health
 | トップページ成功・一部機能失敗 | ブラウザ開発者ツール、該当API、静的ファイルのパス |
 | `git pull --ff-only`失敗 | `git status`とブランチ履歴を確認。安易にmerge/resetしない |
 
-## 7. 2026-10-17時点の検証実績
+## 7. 検証実績（2026-10-17、2026-11-14追記）
 
 **確認済み**
 
@@ -251,6 +251,10 @@ curl -i https://sarajevo.jp/api/health
 - ゲームのGAME OVER遷移
 - 本番環境での依存関係再インストール手順の確定
 - セキュリティ監査、負荷試験、バックアップ・復旧試験
+
+**2026-11-14の追加確認**：VPSのGit作業ツリーは `/srv/GitHub/Sarajevo001/xo-code-busters`。Expressサービスは稼働し、ローカル・公開双方の `/api/health` がHTTP 200と `{"status":"ok"}` を返した。XOトップページ、Bird Shootのゲーム進行、Drawingの描画を画面で確認した。Drawingの端末間接続は未確認。依存関係のインストール時にnpm auditでmoderate 1件・high 1件の警告が出ており、修正・再評価は未実施。
+
+**設定の再適用に関する注意**：GitHub管理のsystemd定義とVPSで実際に稼働しているユニットの内容が一致することを、反映前に確認する。ファイルのGit更新だけではVPS上のユニットは変わらない。
 
 ## 8. 今後の運用上の注意
 
