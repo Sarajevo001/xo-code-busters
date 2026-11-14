@@ -1,33 +1,42 @@
-# 手動ワンコマンドデプロイ（XO-Code Busters）
+# XO-Code Busters: ワンコマンドデプロイ
 
-VPS上で `debian` 等のGit作業ツリー所有ユーザーとして実行：
+## 初回も2回目以降も同じ1コマンド
+
+VPSに通常のデプロイユーザー（Git作業ツリー所有者、通常は debian）でSSHログインし、以下を**1行だけ**実行する。
 
 ```bash
-bash /srv/GitHub/Sarajevo001/xo-code-busters/deploy/deploy-xo.sh
+bash -c 'f=$(mktemp); curl -fsSL https://raw.githubusercontent.com/Sarajevo001/xo-code-busters/main/deploy/deploy-xo.sh -o "$f" && bash "$f"; rc=$?; rm -f "$f"; exit "$rc"'
 ```
 
-**GitHubに登録しただけではVPSに反映されません。** 初回は既存の手動手順でスクリプトを取得する必要があります。直近のGitHub更新にはsystemd定義の変更も含まれるため、VPS実機の定義との照合と必要な設定反映を先に実施してください。
+GitHub上の最新のスクリプトを一時ファイルに取得するため、初回に手動で git pull する必要はない。実行するスクリプトの取得先は公開GitHubの main ブランチ。**実行前に信頼するリポジトリと変更内容を確認すること**。厳密にスクリプト版を固定したい場合はコミットSHAをURLに指定する。
 
-## 動作
+## スクリプトの処理
 
-- `flock` で二重起動を防止。作業ツリーの汚れ、ブランチ、origin、Fast-Forward可能性を検査。
-- `deploy/caddy/` と `deploy/systemd/` に変更がある場合、Git更新前に停止。インフラ設定は自動適用しない。
-- `src/server/package*.json` 変更時は `npm ci --omit=dev`、`src/server/` または `src/shared/` 変更時はサービスを再起動。
-- ローカル `/api/health` のHTTP 200および `status=ok` を確認。
-- 更新後のエラー時は元のコミットへ戻し、依存関係とサービスの復旧を試行する。ただし復旧の成功は保証しない。
+1. Git作業ツリーが clean/main で、origin が所定のGitHubリポジトリか検査。flock で二重実行防止。
+2. GitHubの main を fetch。Fast-Forwardできない場合は停止。
+3. Caddy定義に変更があれば停止。systemd定義はGitHubの対象コミットとVPSの実ファイルを比較し、違いがあれば検証してバックアップ後に反映。
+4. サーバー依存関係の変更時に npm ci --omit=dev。
+5. systemd daemon-reload（ユニット変更時）、Express再起動。
+6. ローカルAPIの応答を確認。異常時は元のGitコミットとユニットの復旧を試行。
 
-## 前提と制約
+sudoは必要に応じてパスワード入力する。rootとしてスクリプトを実行しない。Git作業ツリーにローカル変更がある場合は勝手に破棄せず停止する。
 
-- `git`、`npm`、`curl`、`flock`、`sudo` が利用できる。
-- Git更新権限と、`sudo -n systemctl restart xo-code-busters.service` の実行権限が必要。実機で未確認。
-- 実行時点の `origin/main` 最新コミットを対象とする。指定SHAの選択・承認ゲートは未実装。
-- ログは標準出力に表示。独立した永続デプロイ履歴は未実装。
-- Caddy、systemd、DB移行、外部HTTPS、UI、P2Pの自動検証は対象外。
+## 検証の目的・判断条件
 
-## 検証と停止条件
+**目的**：初回も通常更新も1コマンドで安全に反映できるか検証する。
 
-目的：意図した更新と異常時停止を確認する。成功：対象SHA一致、ローカルAPI正常。失敗：異常でも処理が進む、またはヘルスチェック異常。判定不能：VPSの権限・実設定・通信条件が未確認。
+- 成功：対象コミットの反映、systemd設定の整合、ローカルAPIがHTTP 200かつ status=ok。
+- 失敗：異常を検出できない、更新できない、APIが異常、または切り戻し不能。
+- 判定不能：実機設定・権限・通信のため観測できない。
 
-手順：①シェル構文確認 ②VPS実設定・権限確認 ③復旧可能な状態の保全 ④試験デプロイ1回 ⑤必要なら切り戻し確認。各段階で失敗・判定不能なら次へ進まない。
+**実施順序**：①静的構文検査 ②初回実機試験1回 ③通常更新試験1回 ④異常時復旧試験1回。失敗・判定不能時は以降の試験を停止し、原因を確認する。
 
-**現時点でVPS実行・復旧試験は未実施。**
+**未検証**：VPSでの実行、sudo権限、ロールバックの実効性、公開HTTPS、ブラウザ・P2P、DB移行。システム設定の差分を自動反映するため、初回はサービス再起動が発生する。既存ユニットのバックアップは /etc/systemd/system/ に残す。
+
+## 制約
+
+- VPSに git、npm、curl、flock、sudo、systemctl、systemd-analyze が必要。
+- systemdユニットの変更は自動反映するが、Caddy変更・DB移行は対象外。
+- 更新前の作業ツリーの未コミット変更は許容しない。
+- ロールバックは**試行**であり、正常性まで保証しない。
+- 実行ログは標準出力。永続ログとデプロイ対象SHAの承認UIは未実装。
