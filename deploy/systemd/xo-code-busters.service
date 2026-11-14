@@ -6,8 +6,8 @@ After=network.target
 Type=simple
 User=xo-code-busters
 Group=xo-code-busters
-WorkingDirectory=/srv/xo-code-busters/src/server
-ExecStart=/usr/bin/node /srv/xo-code-busters/src/server/server.js
+WorkingDirectory=/srv/GitHub/Sarajevo001/xo-code-busters/src/server
+ExecStart=/usr/bin/node /srv/GitHub/Sarajevo001/xo-code-busters/src/server/server.js
 Restart=on-failure
 RestartSec=5
 Environment=NODE_ENV=production
