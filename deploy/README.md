@@ -33,6 +33,10 @@ sudoは必要に応じてパスワード入力する。rootとしてスクリプ
 
 **未検証**：VPSでの実行、sudo権限、ロールバックの実効性、公開HTTPS、ブラウザ・P2P、DB移行。システム設定の差分を自動反映するため、初回はサービス再起動が発生する。既存ユニットのバックアップは /etc/systemd/system/ に残す。
 
+## Caddy設定の適用に関する注意
+
+GitHubの `deploy/caddy/Caddyfile` は現行VPSの `demo.sarajevo.jp` 定義を含まない。**このファイルを `/etc/caddy/Caddyfile` へ直接上書きしてはならない。** 既存サイトの定義を含めて統合・検証するまでCaddy設定の適用は保留する。現行の `deploy-xo.sh` はCaddy定義に変更がある場合に停止し、Caddy設定を自動適用しない。詳細は `docs/operation/deployment-guide.md` 第5節を参照。
+
 ## 制約
 
 - VPSに git、npm、curl、flock、sudo、systemctl、systemd-analyze が必要。

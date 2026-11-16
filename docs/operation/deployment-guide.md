@@ -58,7 +58,7 @@ sarajevo.jp {
 }
 ```
 
-実際にCaddyが参照するファイルは`/etc/caddy/Caddyfile`。Git管理ファイルからコピーして反映する。
+実際にCaddyが参照するファイルは `/etc/caddy/Caddyfile`。**現在のGit管理ファイルは稼働中の設定を完全には再現していないため、そのままコピーしてはならない。** VPSの現行設定にある `demo.sarajevo.jp` がGit管理ファイルに未反映である。設定の統合と照合が完了するまで、Caddy設定の適用は保留する（第5節参照）。
 
 ### systemd設定（現在の内容）
 
@@ -104,13 +104,9 @@ sudo useradd --system --no-create-home --shell /usr/sbin/nologin xo-code-busters
 id xo-code-busters
 ```
 
-**Caddy設定の登録（初回または変更時）**
+**Caddy設定の登録（初期構築時の実績・現時点では再実行禁止）**
 
-```bash
-sudo caddy validate --config /srv/GitHub/Sarajevo001/xo-code-busters/deploy/caddy/Caddyfile --adapter caddyfile
-sudo cp /srv/GitHub/Sarajevo001/xo-code-busters/deploy/caddy/Caddyfile /etc/caddy/Caddyfile
-sudo systemctl reload caddy
-```
+初期構築ではGit管理ファイルをVPSへ配置したが、現在はVPS側に `demo.sarajevo.jp` の設定が追加されている。**当時のコピー操作を現在の手順として再実行しないこと。** 現行VPS設定を確認してGitHub側に統合するまでは、Caddyfileの上書きとreloadを実施しない。適用時の判断条件は第5節を参照する。
 
 **Expressサービス登録（初回のみ）**
 
@@ -179,16 +175,18 @@ APIのPOSTなど、更新内容に応じた個別機能の動作確認を追加�
 
 ## 5. インフラ設定を変更した場合
 
-### Caddyfile変更時
+### Caddyfile変更時（現時点では適用保留）
 
-```bash
-cd /srv/GitHub/Sarajevo001/xo-code-busters
-git pull --ff-only
-sudo caddy validate --config deploy/caddy/Caddyfile --adapter caddyfile
-sudo cp deploy/caddy/Caddyfile /etc/caddy/Caddyfile
-sudo systemctl reload caddy
-systemctl status caddy --no-pager
-```
+**禁止事項：Git管理の `deploy/caddy/Caddyfile` を、稼働中の `/etc/caddy/Caddyfile` へ無条件に `cp` してはならない。** Git管理ファイルは `sarajevo.jp` のみを含み、2026-11-16のVPS確認記録にある `demo.sarajevo.jp` の設定が欠けている。構文検証に成功しても、既存サイトを維持できるとは限らない。
+
+適用を再開する前に、次を満たすこと。
+
+1. VPSの `/etc/caddy/Caddyfile` と、その設定から読み込まれるファイルを確認し、現行設定を退避する。
+2. 稼働中の全サイト定義（少なくとも `sarajevo.jp` と `demo.sarajevo.jp`）を保持した統合案をXOのGitHub側に反映し、差分を確認する。
+3. 統合後の設定を `caddy validate` で検証し、既存の公開先・ルーティング・必要な権限を確認する。
+4. 検証済み設定の適用を明示的に判断してから、VPS側へ反映してCaddyをreloadする。反映後は両サイトの公開動作を確認する。失敗・判定不能の場合は追加変更を停止し、退避した設定を用いて復旧を判断する。
+
+**上記の統合作業と適用方法は後続工程で確定する。現時点では実行用の上書きコマンドを提示しない。** GitHubへのコミットや `git pull` だけではVPSのCaddy設定は変更されない。
 
 ### systemdサービス定義変更時
 
@@ -259,9 +257,9 @@ curl -i https://sarajevo.jp/api/health
 ## 8. 今後の運用上の注意
 
 - GitHubを正本とし、VPS上でソースを直接編集しない。
-- Caddyfileとsystemdサービス定義はリポジトリ側を編集し、VPSでコピーして反映する。
+- Caddyfileとsystemdサービス定義はGitHubを正本として管理する。ただしCaddyfileは現行VPS設定との統合が未完了のため、**Git管理ファイルを直接上書き適用しない**。systemd定義も適用前に稼働中の内容と差分を確認する。
 - VPS上での更新には、静的ファイル変更・サーバー変更・インフラ設定変更の区別を付ける。
-- 別サイトを追加する場合は、Caddyのサイト定義、Expressの待受ポート、systemdサービス、必要に応じた専用実行ユーザーを追加する。SSHログインユーザーをサイトごとに切り替える必要はない。
+- 別サイトを追加する場合、静的ファイル公開ならExpressの待受ポート・systemdサービス・専用実行ユーザーの追加は必須ではない。動的アプリを追加する場合の実行方式は別途設計判断する。SSHログインユーザーをサイトごとに切り替える必要はない。
 - 今回の手順は手動運用を前提とする。CI/CDや無停止デプロイは現時点の必須要件に含めない。
 
 ## 9. 複数プロジェクトの公開方式（設計方針・未実装）
