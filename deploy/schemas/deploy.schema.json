@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "XO-Code Busters static deploy manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "publish"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "publish": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "directory"
+      ],
+      "properties": {
+        "type": {
+          "const": "static"
+        },
+        "directory": {
+          "type": "string",
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?(/|$))[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$"
+        }
+      }
+    }
+  }
+}
