@@ -1,4 +1,10 @@
 {
   "schemaVersion": 1,
-  "projects": []
+  "projects": [
+    {
+      "repository": "Sarajevo001/oop-rpg-workshop",
+      "host": "demo.sarajevo.jp",
+      "path": "/oop-rpg-workshop/"
+    }
+  ]
 }

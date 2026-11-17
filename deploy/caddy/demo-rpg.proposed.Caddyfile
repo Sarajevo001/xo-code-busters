@@ -1,0 +1,17 @@
+# Proposed full Caddyfile for VPS review only; NOT automatically installed.
+# Preserve the existing XO reverse proxy and demo static root.
+sarajevo.jp {
+    reverse_proxy 127.0.0.1:3000
+}
+
+demo.sarajevo.jp {
+    redir /oop-rpg-workshop /oop-rpg-workshop/ 308
+    handle_path /oop-rpg-workshop/* {
+        root * /srv/GitHub/Sarajevo001/oop-rpg-workshop/src/public
+        file_server
+    }
+    handle {
+        root * /var/www/demo
+        file_server
+    }
+}
