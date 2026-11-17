@@ -1,23 +1,27 @@
-# 講座共通公開プランナー（静的公開 v1）
+# 講座共通デプロイ準備（静的公開 v1）
 
-`deploy/deploy_projects.py` は、XO側 `deploy/projects.json` と講座側の各 `deploy.json` を読み取り、検証済み公開計画を標準出力にJSONで表示する**読み取り専用**の実装です。
+## 範囲
+`deploy/deploy_projects.py` はXO側の `projects.json` と各講座の `deploy.json` を検証し、公開計画をJSONで出力する。オプションで既存Gitチェックアウトのmainをfast-forward更新し、Caddy設定の**プレビュー**を出力する。
 
+## 実行
 ```bash
 python3 deploy/deploy_projects.py --checkout-root /srv/GitHub
+python3 deploy/deploy_projects.py --checkout-root /srv/GitHub --update
+python3 deploy/deploy_projects.py --checkout-root /srv/GitHub --caddy-preview /tmp/xo-projects.preview.caddy
+python3 -m unittest discover -s deploy -p 'test_deploy_projects.py' -v
 ```
 
-- デフォルトの公開先一覧は空です。RPGなどを登録する前に実際のGitチェックアウト・公開ディレクトリを確認してください。
-- Git pull / clone、Caddyfile生成・反映、systemd操作、公開URLの切替、コピー・削除は行いません。
-- 必須項目と未定義項目、公開形式、相対パス、ディレクトリ実在、シンボリックリンク、URL重複・親子パス衝突を検証します。動的公開 `node` / `php` は未対応です。
-- 現行スキーマのURLパスは先頭・末尾スラッシュ必須。ルート `/` は既存のXOと競合し得るため、実際のCaddy統合前に確認します。
-- Caddy設定の安全な統合とVPS実機反映は第4工程で扱います。**本プランナーの成功をもって公開成功とは判定しません。**
+- 初期状態の `deploy/projects.json` は空。これを公開成功とみなさない。
+- `--update` は**明示指定時のみ**既存のcleanなmainブランチをfast-forwardする。新規cloneはしない。Gitリモートは指定したGitHubリポジトリと一致する必要がある。
+- `--update` で複数のリポジトリを更新する場合、全体の原子的なロールバックは保証しない。更新失敗時は手動で状況を確認する。
+- Caddy設定はプレビューのみ。稼働中の `/etc/caddy/Caddyfile` は上書きしない。Caddyの再起動・reloadもしない。
+- URLのルート `/` はプレビュー生成対象外。既存XOサイトとの衝突を避けるため第4工程で統合設計する。
+- 現状の `handle_path` はURLプレフィックスを取り除く。絶対URLに依存するコンテンツやCaddyの既存ルーティングとの整合は第4工程で確認する。
+- `node` と `php` は将来案であり未対応。
+- 実際の公開先・既存Caddy設定・RPG移行は第4工程の対象。
 
-## 検証条件
-
-目的：公開計画の組立と不正設定の事前拒否を確認する。
-
-- 成功：正常な一件を計画に出力し、領域外パス・未知項目・URL衝突・公開内シンボリックリンク・未対応形式を拒否する。
-- 失敗：不正設定を受理する、または正常設定を拒否する。
-- 判定不能：テスト環境が用意できず結果を確認できない。
-
-手順：`cd deploy && python3 -m unittest test_deploy_projects.py` を一回実行。失敗・判定不能ならそこで停止し、原因を確認する。VPSの公開動作はこの検証の対象外。
+## 判定条件
+- 単体テスト成功：ローカルの正常系と異常系の期待結果が一致。
+- 失敗：不正な入力が通る、または正常な入力が拒否される。
+- 判定不能：テスト実行環境・結果が確認できない。
+- VPSでの公開成功：この単体テストでは判定しない。
