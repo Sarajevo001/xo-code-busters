@@ -98,8 +98,6 @@ def verify_git_checkout(checkout, repository):
         raise InvalidConfig(f"unexpected origin: {checkout}")
     if git("branch", "--show-current", cwd=checkout) != "main":
         raise InvalidConfig(f"not on main: {checkout}")
-    if git("status", "--porcelain", "--untracked-files=normal", cwd=checkout):
-        raise InvalidConfig(f"dirty checkout: {checkout}")
 
 
 def validate_target_publication(checkout, repository, target):
@@ -134,7 +132,7 @@ def validate_target_publication(checkout, repository, target):
 
 
 def update_checkouts(entries, root):
-    """Opt-in fast-forward update of existing clean main checkouts only."""
+    """Synchronize registered checkouts to validated GitHub main revisions."""
     unique = {}
     for entry in entries:
         repository = entry["repository"]
@@ -147,16 +145,12 @@ def update_checkouts(entries, root):
         old = git("rev-parse", "HEAD", cwd=checkout)
         git("fetch", "--no-tags", "origin", "main", cwd=checkout)
         target = git("rev-parse", "FETCH_HEAD", cwd=checkout)
-        try:
-            git("merge-base", "--is-ancestor", old, target, cwd=checkout)
-        except InvalidConfig as exc:
-            raise InvalidConfig(f"non-fast-forward update: {repository}") from exc
         validate_target_publication(checkout, repository, target)
         targets[repository] = (old, target)
     for repository, checkout in unique.items():
         old, target = targets[repository]
         if old != target:
-            git("merge", "--ff-only", target, cwd=checkout)
+            git("reset", "--hard", target, cwd=checkout)
     return targets
 
 
@@ -239,7 +233,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--projects", type=Path, default=Path(__file__).with_name("projects.json"))
     parser.add_argument("--checkout-root", type=Path, default=Path("/srv/GitHub"))
-    parser.add_argument("--update", action="store_true", help="fast-forward existing clean main checkouts")
+    parser.add_argument("--update", action="store_true", help="synchronize registered checkouts to GitHub main")
     parser.add_argument("--caddy-preview", type=Path, help="write a Caddy preview without applying it")
     args = parser.parse_args()
     try:
