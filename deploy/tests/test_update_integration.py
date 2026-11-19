@@ -58,6 +58,23 @@ class UpdateIntegrationTests(unittest.TestCase):
         git(self.remote, "commit", "-qm", "update")
         return git(self.remote, "rev-parse", "HEAD")
 
+    def test_old_checkout_without_manifest_updates_to_valid_target(self):
+        git(self.remote, "rm", "deploy.json")
+        git(self.remote, "commit", "-qm", "initial without manifest")
+        # Recreate checkout at the old revision with no manifest.
+        git(self.checkout, "fetch", "origin", "main")
+        git(self.checkout, "reset", "--hard", "origin/main")
+        old = git(self.checkout, "rev-parse", "HEAD")
+        (self.remote / "deploy.json").write_text(json.dumps({
+            "schemaVersion": 1,
+            "publish": {"type": "static", "directory": "src/public"}
+        }), encoding="utf-8")
+        target = self.commit_remote()
+        deploy.update_checkouts(self.entries, self.checkout_root)
+        self.assertNotEqual(old, target)
+        self.assertEqual(git(self.checkout, "rev-parse", "HEAD"), target)
+        self.assertTrue((self.checkout / "deploy.json").is_file())
+
     def test_valid_fast_forward(self):
         (self.public / "index.html").write_text("new", encoding="utf-8")
         target = self.commit_remote()
