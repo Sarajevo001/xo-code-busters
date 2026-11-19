@@ -3,13 +3,11 @@ name: Validate common static publication planner
 on:
   push:
     paths:
-      - 'deploy/deploy_projects.py'
-      - 'deploy/test_deploy_projects.py'
+      - 'deploy/**'
       - '.github/workflows/validate-deploy-planner.yml'
   pull_request:
     paths:
-      - 'deploy/deploy_projects.py'
-      - 'deploy/test_deploy_projects.py'
+      - 'deploy/**'
       - '.github/workflows/validate-deploy-planner.yml'
 
 jobs:
@@ -19,7 +17,9 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
-      - name: Run unit tests
+      - name: Run planner unit tests
         run: python3 -m unittest discover -s deploy -p 'test_deploy_projects.py' -v
-      - name: Validate empty registry
-        run: python3 deploy/deploy_projects.py --checkout-root /srv/GitHub
+      - name: Run target and update integration tests
+        run: python3 -m unittest discover -s deploy/tests -p 'test_*.py' -v
+      - name: Validate registry syntax
+        run: python3 -c "import json; from pathlib import Path; json.loads(Path('deploy/projects.json').read_text(encoding='utf-8'))"
