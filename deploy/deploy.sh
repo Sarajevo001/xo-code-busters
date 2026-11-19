@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # One-command deployment of XO checkout and registered static projects.
-# Does not install Caddy configuration or restart services.
+# Updates registered projects and applies XO-owned Caddy configuration.
 set -Eeuo pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
@@ -12,7 +12,7 @@ if [[ "${EUID}" -eq 0 ]]; then
   printf 'ERROR: run as the normal deployment user, not root.\n' >&2
   exit 1
 fi
-for command in python3 git flock; do
+for command in python3 git flock caddy sudo; do
   if ! command -v "$command" >/dev/null 2>&1; then
     printf 'ERROR: required command not found: %s\n' "$command" >&2
     exit 1
@@ -55,4 +55,4 @@ if [[ ! -f "$PROJECTS" || ! -f "$DEPLOYER" ]]; then
   printf 'ERROR: missing deployment configuration or implementation.\n' >&2
   exit 1
 fi
-python3 "$DEPLOYER" --projects "$PROJECTS" --update
+python3 "$DEPLOYER" --projects "$PROJECTS" --update\npython3 "$SCRIPT_DIR/apply_caddy.py" --projects "$PROJECTS"
