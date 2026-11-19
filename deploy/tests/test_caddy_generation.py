@@ -2,6 +2,7 @@
 import importlib.util
 import sys
 import unittest
+from unittest.mock import patch, call
 from pathlib import Path
 
 SOURCE = Path(__file__).resolve().parents[1] / "apply_caddy.py"
@@ -19,6 +20,21 @@ class CaddyGenerationTests(unittest.TestCase):
         self.assertIn("reverse_proxy 127.0.0.1:3000", text)
         self.assertIn("handle_path /oop-rpg-workshop/*", text)
         self.assertNotIn("/var/www/demo", text)
+
+    def test_replaces_unmanaged_live_configuration(self):
+        plan = [{"host": "demo.sarajevo.jp",
+                 "path": "/oop-rpg-workshop/",
+                 "directory": "/srv/GitHub/Sarajevo001/oop-rpg-workshop/src/public"}]
+        old = "demo.sarajevo.jp {\\n    root * /var/www/demo\\n}\\n"
+        with patch.object(module.subprocess, "run") as read, patch.object(module, "run") as execute:
+            read.return_value.stdout = old
+            self.assertEqual(module.apply(plan, Path("/etc/caddy/Caddyfile")), "updated")
+            self.assertEqual(execute.call_count, 4)
+            self.assertEqual(execute.call_args_list[0].args[0], "caddy")
+            self.assertEqual(execute.call_args_list[1].args[:3],
+                             ("sudo", "-n", "cp"))
+            self.assertEqual(execute.call_args_list[2].args[:3],
+                             ("sudo", "-n", "install"))
 
     def test_reserved_main_host(self):
         with self.assertRaises(module.projects.InvalidConfig):
