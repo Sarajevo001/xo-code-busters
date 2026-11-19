@@ -102,6 +102,37 @@ def verify_git_checkout(checkout, repository):
         raise InvalidConfig(f"dirty checkout: {checkout}")
 
 
+def validate_target_publication(checkout, repository, target):
+    """Validate the fetched revision before changing the checked-out commit."""
+    try:
+        manifest = json.loads(git("show", f"{target}:deploy.json", cwd=checkout))
+    except (json.JSONDecodeError, InvalidConfig) as exc:
+        raise InvalidConfig(f"invalid target deploy.json: {repository}") from exc
+    object_fields(manifest, {"schemaVersion", "publish"}, "target.deploy.json")
+    if type(manifest["schemaVersion"]) is not int or manifest["schemaVersion"] != 1:
+        raise InvalidConfig(f"unsupported target schema: {repository}")
+    publish = manifest["publish"]
+    object_fields(publish, {"type", "directory"}, "target.publish")
+    directory = publish["directory"]
+    if publish["type"] != "static" or not safe_directory(directory):
+        raise InvalidConfig(f"invalid target publication: {repository}")
+    # Git tree entries include modes, allowing symlinks to be rejected before merge.
+    entries = git("ls-tree", "-r", target, "--", directory, cwd=checkout).splitlines()
+    if not entries:
+        raise InvalidConfig(f"missing target publication directory: {repository}")
+    for entry in entries:
+        mode = entry.split(" ", 1)[0]
+        if mode == "120000":
+            raise InvalidConfig(f"symlink in target publication: {repository}")
+    # Also reject symlink components of the publication directory itself.
+    parts = directory.split("/")
+    for i in range(1, len(parts) + 1):
+        component = "/".join(parts[:i])
+        item = git("ls-tree", target, "--", component, cwd=checkout)
+        if item and item.split(" ", 1)[0] == "120000":
+            raise InvalidConfig(f"symlink target directory: {repository}")
+
+
 def update_checkouts(entries, root):
     """Opt-in fast-forward update of existing clean main checkouts only."""
     unique = {}
@@ -120,6 +151,7 @@ def update_checkouts(entries, root):
             git("merge-base", "--is-ancestor", old, target, cwd=checkout)
         except InvalidConfig as exc:
             raise InvalidConfig(f"non-fast-forward update: {repository}") from exc
+        validate_target_publication(checkout, repository, target)
         targets[repository] = (old, target)
     for repository, checkout in unique.items():
         old, target = targets[repository]
