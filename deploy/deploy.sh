@@ -28,9 +28,8 @@ if ! flock -n 9; then
   exit 1
 fi
 
-# Preflight validates the current registry, manifests and publication paths.
-python3 "$DEPLOYER" --projects "$PROJECTS" >/dev/null
-
+# Validation of fetched revisions happens before any fast-forward in the deployer.
+# Do not require the old checkout to already contain a deploy.json.
 # Updates clean main checkouts using fetch + fast-forward, then validates output.
 # No Caddy changes, file copies, service restarts or destructive Git resets.
 python3 "$DEPLOYER" --projects "$PROJECTS" --update
