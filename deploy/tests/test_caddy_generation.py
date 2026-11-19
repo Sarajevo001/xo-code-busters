@@ -1,9 +1,11 @@
 """Caddy configuration generation regression tests."""
 import importlib.util
+import sys
 import unittest
 from pathlib import Path
 
 SOURCE = Path(__file__).resolve().parents[1] / "apply_caddy.py"
+sys.path.insert(0, str(SOURCE.parent))
 spec = importlib.util.spec_from_file_location("apply_caddy", SOURCE)
 module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)

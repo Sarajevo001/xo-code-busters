@@ -55,4 +55,5 @@ if [[ ! -f "$PROJECTS" || ! -f "$DEPLOYER" ]]; then
   printf 'ERROR: missing deployment configuration or implementation.\n' >&2
   exit 1
 fi
-python3 "$DEPLOYER" --projects "$PROJECTS" --update\npython3 "$SCRIPT_DIR/apply_caddy.py" --projects "$PROJECTS"
+python3 "$DEPLOYER" --projects "$PROJECTS" --update
+python3 "$SCRIPT_DIR/apply_caddy.py" --projects "$PROJECTS"
