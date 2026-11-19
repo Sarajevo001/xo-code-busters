@@ -9,16 +9,6 @@ import deploy_projects as projects
 
 HEADER = "# Managed by XO-Code Busters deploy. Do not edit on the server.\n"
 LIVE = Path("/etc/caddy/Caddyfile")
-LEGACY = """sarajevo.jp {
-    reverse_proxy 127.0.0.1:3000
-}
-
-demo.sarajevo.jp {
-    root * /var/www/demo
-    file_server
-}
-"""
-
 
 def render(plan):
     hosts = {}
@@ -57,8 +47,6 @@ def apply(plan, live=LIVE):
                              capture_output=True, text=True, timeout=30).stdout
     if current == desired:
         return "unchanged"
-    if not (current.startswith(HEADER) or current.strip() == LEGACY.strip()):
-        raise projects.InvalidConfig("unmanaged or unexpected Caddy configuration; refusing replacement")
     with tempfile.TemporaryDirectory(prefix="xo-caddy-") as directory:
         staged = Path(directory) / "Caddyfile"
         staged.write_text(desired, encoding="utf-8")
