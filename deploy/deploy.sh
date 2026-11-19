@@ -40,12 +40,9 @@ if [[ "${XO_DEPLOY_SELF_UPDATED:-}" != "1" ]]; then
     https://github.com/Sarajevo001/xo-code-busters|https://github.com/Sarajevo001/xo-code-busters.git|git@github.com:Sarajevo001/xo-code-busters|git@github.com:Sarajevo001/xo-code-busters.git) ;;
     *) printf 'ERROR: unexpected XO origin: %s\n' "$origin" >&2; exit 1 ;;
   esac
-  if [[ -n "$(git -C "$XO_ROOT" status --porcelain --untracked-files=normal)" ]]; then
-    printf 'ERROR: XO checkout has local changes.\n' >&2
-    exit 1
-  fi
   git -C "$XO_ROOT" fetch --no-tags origin main
-  git -C "$XO_ROOT" merge --ff-only FETCH_HEAD
+  # GitHub main is authoritative; preserve untracked files and non-Git data.
+  git -C "$XO_ROOT" reset --hard FETCH_HEAD
   # Restart from the updated file; avoid running a mix of old/new scripts.
   export XO_DEPLOY_SELF_UPDATED=1
   exec bash "$XO_ROOT/deploy/deploy.sh"
