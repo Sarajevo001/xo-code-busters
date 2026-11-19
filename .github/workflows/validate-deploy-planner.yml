@@ -17,6 +17,8 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+      - name: Check deployment shell syntax
+        run: bash -n deploy/deploy.sh
       - name: Run planner unit tests
         run: python3 -m unittest discover -s deploy -p 'test_deploy_projects.py' -v
       - name: Run target and update integration tests
