@@ -9,6 +9,9 @@ import deploy_projects as projects
 
 HEADER = "# Managed by XO-Code Busters deploy. Do not edit on the server.\n"
 LIVE = Path("/etc/caddy/Caddyfile")
+PORTAL = Path(__file__).resolve().parents[1] / "src" / "public" / "demo-portal"
+PORTAL_HOST = "demo.sarajevo.jp"
+PORTAL_TARGET = "/oop-rpg-workshop/"
 
 def render(plan):
     hosts = {}
@@ -28,6 +31,18 @@ def render(plan):
                 f"    redir {prefix} {item['path']} 308",
                 f"    handle_path {prefix}/* {{",
                 f"        root * {item['directory']}",
+                "        file_server",
+                "    }",
+            ]
+        if host == PORTAL_HOST and any(item["path"] == PORTAL_TARGET for _, item in items):
+            # Match only the entrance URL, not the registered project prefixes.
+            if (not (PORTAL / "index.html").is_file()
+                    or any(path.is_symlink() for path in
+                           (PORTAL.parent.parent, PORTAL.parent, PORTAL, PORTAL / "index.html"))):
+                raise projects.InvalidConfig("demo entrance missing or symlinked")
+            lines += [
+                "    handle / {",
+                f'        root * "{PORTAL}"',
                 "        file_server",
                 "    }",
             ]

@@ -25,3 +25,7 @@ python3 -m unittest discover -s deploy -p 'test_deploy_projects.py' -v
 - 失敗：不正な入力が通る、または正常な入力が拒否される。
 - 判定不能：テスト実行環境・結果が確認できない。
 - VPSでの公開成功：この単体テストでは判定しない。
+
+## demo.sarajevo.jp の玄関ページ（2026-11-26）
+現行の共通デプロイは `bash deploy/deploy.sh`。この手順は自分自身をmainに同期し、登録講座を更新し、`apply_caddy.py` で構文検証・バックアップ・適用・reloadを行う。上記のプレビューは登録講座の経路のみを出力し、玄関ページは実適用用の生成処理が担当する。
+RPG講座が demo.sarajevo.jp の /oop-rpg-workshop/ に登録されている場合に、完全一致の / のみをXO側の src/public/demo-portal/index.html に割り当てる。登録講座の接頭辞、sarajevo.jp のリバースプロキシ、その他ホストを変更しない。登録されていないパスを玄関の静的ルートとして公開しない。公開後は /、RPG講座への遷移、旧経路、非公開パスの拒否、XO本体の /api/health を確認し、不一致時は追加作業を停止して既存バックアップでの復旧を判断する。

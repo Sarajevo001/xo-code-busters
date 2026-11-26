@@ -21,6 +21,39 @@ class CaddyGenerationTests(unittest.TestCase):
         self.assertIn("handle_path /oop-rpg-workshop/*", text)
         self.assertNotIn("/var/www/demo", text)
 
+    def test_demo_entrance_exact_path_and_existing_route(self):
+        plan = [{"host": "demo.sarajevo.jp",
+                 "path": "/oop-rpg-workshop/",
+                 "directory": "/srv/GitHub/Sarajevo001/oop-rpg-workshop/src/public"},
+                {"host": "other.example.org", "path": "/test/", "directory": "/tmp/test"}]
+        text = module.render(plan)
+        self.assertEqual(text.count("    handle / {"), 1)
+        self.assertIn(f'        root * "{module.PORTAL}"', text)
+        self.assertIn("    redir /oop-rpg-workshop /oop-rpg-workshop/ 308", text)
+        self.assertIn("    handle_path /oop-rpg-workshop/* {", text)
+        self.assertNotIn("    handle {", text)
+        self.assertNotIn("    handle /*", text)
+        self.assertIn("sarajevo.jp {\n    reverse_proxy 127.0.0.1:3000\n}", text)
+        html = (module.PORTAL / "index.html").read_text(encoding="utf-8")
+        self.assertIn('href="/oop-rpg-workshop/"', html)
+        self.assertIn("RPGで学ぶ！", html)
+        self.assertNotIn("http://", html)
+        self.assertNotIn("https://", html)
+        self.assertNotIn("<script", html)
+        self.assertNotIn("file://", html)
+
+    def test_no_entrance_without_registered_rpg(self):
+        text = module.render([{"host": "demo.sarajevo.jp", "path": "/other/",
+                               "directory": "/tmp/other"}])
+        self.assertNotIn("    handle / {", text)
+
+    def test_missing_entrance_stops_generation(self):
+        plan = [{"host": "demo.sarajevo.jp", "path": "/oop-rpg-workshop/",
+                 "directory": "/tmp/rpg"}]
+        with patch.object(module, "PORTAL", Path("/nonexistent-demo-entrance")):
+            with self.assertRaises(module.projects.InvalidConfig):
+                module.render(plan)
+
     def test_replaces_unmanaged_live_configuration(self):
         plan = [{"host": "demo.sarajevo.jp",
                  "path": "/oop-rpg-workshop/",
