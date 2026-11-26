@@ -89,13 +89,26 @@ class UpdateIntegrationTests(unittest.TestCase):
             deploy.update_checkouts(self.entries, self.checkout_root)
         self.assertEqual(git(self.checkout, "rev-parse", "HEAD"), self.old)
 
-    def test_dirty_checkout_does_not_advance_head(self):
+    def test_dirty_tracked_file_is_synchronized_to_valid_github_revision(self):
         (self.public / "index.html").write_text("new", encoding="utf-8")
+        target = self.commit_remote()
+        (self.checkout / "src/public/index.html").write_text("local change", encoding="utf-8")
+        local = self.checkout / "local-notes.txt"
+        local.write_text("keep", encoding="utf-8")
+        deploy.update_checkouts(self.entries, self.checkout_root)
+        self.assertEqual(git(self.checkout, "rev-parse", "HEAD"), target)
+        self.assertEqual((self.checkout / "src/public/index.html").read_text(encoding="utf-8"), "new")
+        self.assertEqual(local.read_text(encoding="utf-8"), "keep")
+
+    def test_invalid_target_preserves_dirty_tracked_file(self):
+        (self.public / "index.html").unlink()
         self.commit_remote()
-        (self.checkout / "src/public/index.html").write_text("local change")
+        local = self.checkout / "src/public/index.html"
+        local.write_text("local change", encoding="utf-8")
         with self.assertRaises(deploy.InvalidConfig):
             deploy.update_checkouts(self.entries, self.checkout_root)
         self.assertEqual(git(self.checkout, "rev-parse", "HEAD"), self.old)
+        self.assertEqual(local.read_text(encoding="utf-8"), "local change")
 
 
 if __name__ == "__main__":
