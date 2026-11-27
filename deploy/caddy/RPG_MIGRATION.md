@@ -1,4 +1,6 @@
-# RPG migration: stage 4
+# RPG migration: stage 4 (historical record)
+
+The following preparation and preconditions are historical, not the current deployment procedure. Use `bash deploy/deploy.sh` from the XO checkout; see [common deployment](../COMMON_DEPLOY.md).
 
 ## Confirmed inputs
 - Current live Caddyfile (provided by operator): `sarajevo.jp` reverse proxy to `127.0.0.1:3000`, `demo.sarajevo.jp` static root `/var/www/demo`.
@@ -25,4 +27,4 @@
 - On failure restore the backup, validate, reload, and recheck both sites.
 
 ## Status
-**Prepared in GitHub only. Not deployed to VPS, not validated against installed Caddy, and no live HTTP/browser acceptance completed.**
+**Updated status (2026-11-27):** prior operational conversation records report successful deployment and Caddy application on November 19, an unchanged repeat deployment, and successful deployment on November 26 (30ae57a), with operator browser confirmation of the demo entrance and RPG navigation. Raw HTTP status for unregistered paths, current VPS cleanup of `/var/www/demo`, and rollback execution are not established by those records. Current configuration generation points directly to the Git checkout, not the old copy directory.
