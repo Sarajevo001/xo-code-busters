@@ -1,5 +1,11 @@
 # XO-Code Busters デプロイ・運用手順書
 
+## 現行手順（2026-11-26実装反映）
+
+静的コンテンツ・登録講座・Caddy設定の更新は `cd /srv/GitHub/Sarajevo001/xo-code-busters` の後に `bash deploy/deploy.sh` を実行する。公開先は `deploy/projects.json`、公開対象は各講座の `deploy.json`、Caddy設定は `deploy/apply_caddy.py` が管理する。旧Caddyfileを直接コピーしない。Expressの依存関係・systemd・再起動は本体専用手順の対象であり、共通デプロイには含まれない。詳細は [現行デプロイ手順](../../deploy/README.md) と [共通デプロイ](../../deploy/COMMON_DEPLOY.md) を参照。
+
+以下の第1〜9節は初期構築・移行前の記録を含む。特にCaddy適用保留、共通機構未実装、旧コピー先に関する記述は当時の状態であり、現行の共通デプロイ手順として実行しない。
+
 - 作成日：2026-10-17
 - 対象：`https://sarajevo.jp`
 - 運用方式：ローカルUbuntu → GitHub → Debian VPS（手動デプロイ）
