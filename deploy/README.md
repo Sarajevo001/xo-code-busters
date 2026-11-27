@@ -1,6 +1,21 @@
-# XO-Code Busters: ワンコマンドデプロイ
+# XO-Code Busters デプロイ手順
 
-## 初回も2回目以降も同じ1コマンド
+## 現行の静的コンテンツ共通デプロイ
+
+VPSの通常デプロイユーザーで実行する。
+
+```bash
+cd /srv/GitHub/Sarajevo001/xo-code-busters
+bash deploy/deploy.sh
+```
+
+XO自身のmainへの同期、登録済み講座の同期、公開計画の検証、Caddy設定の生成・検証・バックアップ・適用・reloadを行う。登録先は `projects.json`、講座側の公開対象は各リポジトリの `deploy.json` が正本。既存チェックアウトが必要で、新規cloneは行わない。Git管理対象は承認済みの同期方針に従って reset --hard で更新される。未追跡ファイルの保存は衝突時には保証しない。複数リポジトリ全体の原子的な復旧は保証しない。
+
+この手順はExpressの依存関係更新・再起動やsystemd定義更新を行わない。XO本体のサーバー変更には下記の専用手順を使い、Caddyの変更は共通デプロイ側で扱う。詳細は [COMMON_DEPLOY.md](COMMON_DEPLOY.md) を参照。
+
+## XO本体専用手順（共通デプロイとは別）
+
+
 
 VPSに通常のデプロイユーザー（Git作業ツリー所有者、通常は debian）でSSHログインし、以下を**1行だけ**実行する。
 
@@ -33,9 +48,9 @@ sudoは必要に応じてパスワード入力する。rootとしてスクリプ
 
 **未検証**：VPSでの実行、sudo権限、ロールバックの実効性、公開HTTPS、ブラウザ・P2P、DB移行。システム設定の差分を自動反映するため、初回はサービス再起動が発生する。既存ユニットのバックアップは /etc/systemd/system/ に残す。
 
-## Caddy設定の適用に関する注意
+## Caddy設定の適用に関する注意（本体専用手順）
 
-GitHubの `deploy/caddy/Caddyfile` は現行VPSの `demo.sarajevo.jp` 定義を含まない。**このファイルを `/etc/caddy/Caddyfile` へ直接上書きしてはならない。** 既存サイトの定義を含めて統合・検証するまでCaddy設定の適用は保留する。現行の `deploy-xo.sh` はCaddy定義に変更がある場合に停止し、Caddy設定を自動適用しない。詳細は `docs/operation/deployment-guide.md` 第5節を参照。
+GitHubの `deploy/caddy/Caddyfile` は現行VPSの `demo.sarajevo.jp` 定義を含まない。**このファイルを `/etc/caddy/Caddyfile` へ直接上書きしてはならない。** 現在の共通デプロイでは apply_caddy.py が管理対象の設定を生成する。現行の `deploy-xo.sh` はCaddy定義に変更がある場合に停止し、Caddy設定を自動適用しない。詳細は `docs/operation/deployment-guide.md` 第5節を参照。
 
 ## 制約
 
@@ -45,8 +60,3 @@ GitHubの `deploy/caddy/Caddyfile` は現行VPSの `demo.sarajevo.jp` 定義を�
 - ロールバックは**試行**であり、正常性まで保証しない。
 - 実行ログは標準出力。永続ログとデプロイ対象SHAの承認UIは未実装。
 
-## 複数プロジェクト公開の今後の方針（未実装）
-
-[設計判断](../docs/decisions/content-deployment-architecture-2026-11-16.md) に従い、RPGやプレゼン工房の各講座は自身のリポジトリルートの `deploy.json`（JSON形式）で公開対象ディレクトリと公開形式を宣言し、XO-Code Busters側が共通インターフェースでデプロイする。公開URL・ドメインおよびVPS上の配置先はXO側が一元管理し、講座側の `deploy.json` には含めない。今回の講座は静的ファイルのみ。静的公開はクローン内の公開専用ディレクトリを直接参照し、別ディレクトリへのコピーを廃止する方針。
-
-**現状**：このREADMEに記載した `deploy-xo.sh` はXO自身のデプロイ用であり、講座・RPG向け共通デプロイ機能を提供しない。公開定義の基本形式は決定済みだが、JSON Schema詳細、XO側の公開URL割当設定、共通デプロイ処理は未決定・未実装。既存スクリプトやVPSの設定を、この文書の更新だけで変更するものではない。
