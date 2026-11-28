@@ -9,7 +9,7 @@ on:
       - '.github/workflows/validate-user-mocks.yml'
 jobs:
   browser:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     steps:
@@ -17,6 +17,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install --no-save --package-lock=false @playwright/test@1.51.1
+      - run: npm install --no-save --package-lock=false @playwright/test@1.56.1
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test tests/user-management/mock.spec.js --workers=1
