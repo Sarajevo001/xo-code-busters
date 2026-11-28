@@ -1,7 +1,6 @@
 const { test, expect } = require('@playwright/test');
-const path = require('node:path');
-const { pathToFileURL } = require('node:url');
-const url = file => pathToFileURL(path.resolve(__dirname, '../../', file)).href;
+const base = 'http://127.0.0.1:3100';
+const url = file => base + (file === 'src/client/mock.html' ? '/client/mock.html' : '/admin/');
 test('general user registration, validation, settings and logout', async ({page}) => {
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
@@ -106,4 +105,12 @@ test('admin navigation visibility follows login state', async ({page}) => {
   await expect(page.locator('nav')).toBeVisible();
   await page.locator('#mock-logout').click();
   await expect(page.locator('nav')).toBeHidden();
+});
+
+test('preview exposes only mock resources', async ({request}) => {
+  for (const route of ['/docs/overview/roadmap.md','/.git/config','/api/health','/src/server/server.js','/admin-server/server.js']) {
+    expect((await request.get(base + route)).status()).toBe(404);
+  }
+  expect((await request.get(base + '/admin/')).status()).toBe(200);
+  expect((await request.get(base + '/')).status()).toBe(200);
 });

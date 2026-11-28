@@ -2,6 +2,7 @@ name: Validate user management mocks
 on:
   push:
     paths:
+      - 'src/mock-preview/**'
       - 'src/client/**'
       - 'src/public/js/user-mock.js'
       - 'src/admin-client/**'
@@ -19,4 +20,13 @@ jobs:
           node-version: '22'
       - run: npm install --no-save --package-lock=false @playwright/test@1.56.1
       - run: npx playwright install --with-deps chromium
-      - run: npx playwright test tests/user-management/mock.spec.js --workers=1
+      - run: |
+          node src/mock-preview/server.js &
+          preview=$!
+          trap 'kill "$preview"' EXIT
+          for i in {1..30}; do
+            if curl -fsS http://127.0.0.1:3100/ >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:3100/ >/dev/null
+          npx playwright test tests/user-management/mock.spec.js --workers=1
