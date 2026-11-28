@@ -45,7 +45,7 @@ test('admin search, registration, edit, suspension and logout', async ({page}) =
   await page.getByRole('button',{name:'編集する'}).click();
   await page.locator('#name').fill('Updated');
   await page.getByRole('button',{name:'変更を保存'}).click();
-  await expect(page.locator('dd')).toContainText(['Updated']);
+  await expect(page.locator('dd').nth(1)).toHaveText('Updated');
   await page.getByRole('button',{name:'編集する'}).click();
   await page.locator('#toggle').click();
   await expect(page.locator('#toggle')).toHaveText('利用停止を解除する');
