@@ -62,3 +62,37 @@ test('admin search, registration, edit, suspension and logout', async ({page}) =
   await expect(page.getByRole('heading')).toHaveText('管理者ログイン（モック）');
   expect(errors).toEqual([]);
 });
+
+test('general user invalid registration and test login', async ({page}) => {
+  await page.goto(url('src/client/mock.html'));
+  await page.getByRole('button',{name:'ログイン',exact:true}).click();
+  await page.getByRole('button',{name:'テストユーザーでログイン'}).click();
+  await expect(page.getByRole('heading')).toContainText('テストユーザー');
+  await page.getByRole('button',{name:'ログアウト'}).click();
+  await page.getByRole('button',{name:'新規登録',exact:true}).click();
+  for (const [email,confirm,message] of [['test@example.com','example','重複'],['new@example.com','different','一致しません']]) {
+    await page.locator('[name=email]').fill(email);
+    await page.locator('[name=name]').fill('Example');
+    await page.locator('[name=password]').fill('example');
+    await page.locator('[name=confirm]').fill(confirm);
+    await page.getByRole('button',{name:'登録（仮）'}).click();
+    await expect(page.getByRole('status')).toContainText(message);
+  }
+});
+test('admin invalid registration and reset on reload', async ({page}) => {
+  await page.goto(url('src/admin-client/index.html'));
+  await page.locator('#admin-id').fill('admin');
+  await page.locator('#admin-password').fill('example');
+  await page.getByRole('button',{name:'ログイン（仮）'}).click();
+  await page.locator('nav [data-view=new]').click();
+  for (const [email,confirm,message] of [['test01@example.com','example','重複'],['new@example.com','different','確認欄']]) {
+    await page.locator('#email').fill(email);
+    await page.locator('#name').fill('Example');
+    await page.locator('#password').fill('example');
+    await page.locator('#confirm').fill(confirm);
+    await page.getByRole('button',{name:'登録する'}).click();
+    await expect(page.getByRole('status')).toContainText(message);
+  }
+  await page.reload();
+  await expect(page.getByRole('heading')).toHaveText('管理者ログイン（モック）');
+});
