@@ -1,7 +1,7 @@
 "use strict";
 (()=>{
 const root=document.querySelector("#screen");
-let users=[{email:"test@example.com",name:"テストユーザー"}], me=null, page="landing", message="";
+let users=[{id:"U0001",email:"test@example.com",name:"テストユーザー"}], me=null, page="landing", message="";
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const btn=(label,to,cls="")=>'<button type="button" data-page="'+to+'" class="'+cls+'">'+label+'</button>';
 function render(){
@@ -18,7 +18,8 @@ function submit(e){
 e.preventDefault();const id=e.currentTarget.id,d=new FormData(e.currentTarget);
 const email=String(d.get("email")||"").trim(),name=String(d.get("name")||"").trim();
 if(id==="login"){me=users.find(u=>u.email.toLowerCase()===email.toLowerCase());if(!me){message="仮登録されたメールアドレスではありません。新規登録かテストログインを利用してください。";render();return;}page="home";}
-if(id==="signup"){if(d.get("password")!==d.get("confirm")){message="パスワード確認が一致しません。";render();return;}if(users.some(u=>u.email.toLowerCase()===email.toLowerCase())){message="メールアドレスが重複しています。";render();return;}me={email,name};users.push(me);page="home";}
+if((id==="signup"||id==="settings")&&!name){message="表示名を入力してください。";render();return;}
+if(id==="signup"){if(d.get("password")!==d.get("confirm")){message="パスワード確認が一致しません。";render();return;}if(users.some(u=>u.email.toLowerCase()===email.toLowerCase())){message="メールアドレスが重複しています。";render();return;}me={id:"U"+String(users.length+1).padStart(4,"0"),email,name};users.push(me);page="home";}
 if(id==="settings"){if(users.some(u=>u!==me&&u.email.toLowerCase()===email.toLowerCase())){message="メールアドレスが重複しています。";render();return;}Object.assign(me,{email,name});page="home";}
 message="仮データで画面遷移しました。パスワードは保存していません。";render();
 }
