@@ -96,3 +96,14 @@ test('admin invalid registration and reset on reload', async ({page}) => {
   await page.reload();
   await expect(page.getByRole('heading')).toHaveText('管理者ログイン（モック）');
 });
+
+test('admin navigation visibility follows login state', async ({page}) => {
+  await page.goto(url('src/admin-client/index.html'));
+  await expect(page.locator('nav')).toBeHidden();
+  await page.locator('#admin-id').fill('admin');
+  await page.locator('#admin-password').fill('example');
+  await page.getByRole('button',{name:'ログイン（仮）'}).click();
+  await expect(page.locator('nav')).toBeVisible();
+  await page.locator('#mock-logout').click();
+  await expect(page.locator('nav')).toBeHidden();
+});
