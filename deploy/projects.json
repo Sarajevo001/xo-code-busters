@@ -5,6 +5,11 @@
       "repository": "Sarajevo001/oop-rpg-workshop",
       "host": "demo.sarajevo.jp",
       "path": "/oop-rpg-workshop/"
+    },
+    {
+      "repository": "Sarajevo001/timer",
+      "host": "demo.sarajevo.jp",
+      "path": "/timer/"
     }
   ]
 }
